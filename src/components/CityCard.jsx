@@ -21,7 +21,6 @@ function CityCard({ city, coords }) {
   const [loading, setLoading] = useState(false);
   const { unit } = usePrefs();
 
-  // --- 1) تابع واحد برای لود/ریفِرش داده‌ها
   const reload = useCallback(
     async (signal) => {
       const urlNow = city
@@ -33,7 +32,7 @@ function CityCard({ city, coords }) {
       if (!urlNow) return;
 
       const [nowData, fcData] = await Promise.all([
-        apiGet(urlNow, { signal, ttl: 0 }), // همواره تازه
+        apiGet(urlNow, { signal, ttl: 0 }),
         city
           ? apiGet(forecast5dByCity(city), { signal, ttl: 0 })
           : Promise.resolve(null),
@@ -45,10 +44,8 @@ function CityCard({ city, coords }) {
     [city, coords?.lat, coords?.lon]
   );
 
-  // --- 2) آتو-ریفِرش هر 1 دقیقه (Hook باید در ریشه باشد)
   useAutoRefresh(() => reload(), 1 * 60_000, true);
 
-  // --- 3) فِچِ اولیه و وقتی props تغییر می‌کنند
   useEffect(() => {
     let active = true;
     const ctrl = new AbortController();
@@ -71,7 +68,6 @@ function CityCard({ city, coords }) {
     };
   }, [reload]);
 
-  // --- 4) وضعیت‌ها
   if (loading)
     return (
       <div className="rounded-2xl border p-4 animate-pulse bg-white dark:bg-gray-800">
@@ -86,7 +82,6 @@ function CityCard({ city, coords }) {
     );
   if (!now) return null;
 
-  // --- 5) داده‌های نمایش
   const icon = now.weather?.[0]?.icon;
   const cond = now.weather?.[0]?.main ?? "—";
   const temp = formatTemp(now.main?.temp, unit);
